@@ -1,0 +1,89 @@
+name: PR Develop from Feature
+
+on:
+  push:
+    branches: [ "develop" ]
+
+permissions:
+  contents: write
+
+jobs:
+  start:
+    name: PR Develop from Feature
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: validate step
+        id: validacao
+        run: |
+          git checkout admin
+          currentstep=$(cat .github/CONFIG/step.txt)
+          echo "::set-output name=currentstep::$currentstep" 
+          compare=$(git rev-list --right-only --count main...develop)
+          echo "::set-output name=compare::$compare"                   
+      
+      - name: Create an issue
+        if: ${{ steps.validacao.outputs.currentstep == '4'  && steps.validacao.outputs.compare != '0' }}               
+        uses: actions-ecosystem/action-create-issue@v1
+        with:
+          github_token: ${{ secrets.ISSUE_SECRET }}
+          title: Branch Develop Atualizada!!!
+          body: |
+            ## Voltamos para o fluxo inicial....
+
+            Até agora pouco, nós tinhamos 3 branches rodando, a main, develop e a nossa feature, mas agora que terminamos de desenvolver a nova funcionalidade,
+            realizamos o merge, e excluimos a branch de feature.
+
+            > **_NOTA:_** Vale lembrar que em um cenário real, nós não teremos apenas uma feature sendo desenvolvida, mas sim várias.
+
+            Agora com esse merge feito em Develop, seria o momento ideal para implantar no ambiente de Desenvolvimento, até porque em develop podem existir mais de uma 
+            nova feature para testes. É aqui que estamos juntando as alterações pendentes, e é apartir daqui que geramos uma nova versão de produção.
+
+            > **_NOTA:_** Vale lembrar, a Branch Develop está nesse momento com alterações bem a frente da Main, e isso não é um problema, já que a main é a versão de produção da aplicação.
+
+            Como eu disse, apartir dessa branch nós subimos em Desenvolvimento (mas não faremos isso hoje), e também fechamos a versão de produção. 
+            
+            Para fechar uma versão para produção, nós iremos criar uma branch de release.
+
+            ![GitFlow](https://user-images.githubusercontent.com/5204009/187737958-846b768a-3f67-4a4f-9ac0-50647ae07b0b.png)
+
+            Como a branch de release é criada apartir de Develop, uma release pode conter uma ou mais features desenvolvidas recentemente, e uma questão muito importante a se considerar,
+            é que depois de criada, a branch de Release não deve ser alterada, exceto no caso de algum bugfix, documentação, ou algum problema.
+
+            Antes de continuar as explicações, vamos criar uma nova branch de release?
+
+            As branches de release seguem a mesma convenção das features, que é ```release/v1.0.0```.
+
+            Vamos criar nossa branch então? Executa ai na sua máquina:
+
+            ```
+            git checkout develop
+            git pull
+            ```
+            O Git Pull vai atualizar na sua branch develop com as atualizações disponiveis no servidor
+
+            Agora podemos criar nossa branch
+
+            ```
+            git checkout -b release/v1.0.0
+            ```
+
+            Bons Estudos, e até daqui a pouco!!
+
+            ![yogitocat](https://octodex.github.com/images/doctocat-brown.jpg)
+
+
+      - name: Update Step
+        if: ${{ steps.validacao.outputs.currentstep == '4'  && steps.validacao.outputs.compare != '0' }}      
+        run: |
+          git fetch
+          git checkout admin
+          echo "5" > .github/CONFIG/step.txt
+          git config --global user.name 'Julio Arruda'
+          git config --global user.email 'julio.arruda@outlook.com'          
+          git add .
+          git commit -m "Atualizando Step"
+          git push
