@@ -77,3 +77,16 @@ jobs:
             Bons Estudos, e até daqui a pouco!!
 
             ![yogitocat](https://octodex.github.com/images/dinotocat.png)
+
+
+      - name: Update Step
+        if: ${{ steps.validacao.outputs.currentstep == '1' }}      
+        run: |
+          git fetch
+          git checkout admin
+          echo "2" > .github/CONFIG/step.txt
+          git config --global user.name 'Julio Arruda'
+          git config --global user.email 'julio.arruda@outlook.com'          
+          git add .
+          git commit -m "Atualizando Step"
+          git push
