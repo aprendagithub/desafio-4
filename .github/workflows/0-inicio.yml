@@ -1,0 +1,142 @@
+name: Inicio
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main  
+
+permissions:
+  contents: write
+
+jobs:
+  start:
+    name: Inicio
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: validate step
+        id: validacao
+        run: |
+          git checkout admin
+          currentstep=$(cat .github/CONFIG/step.txt)
+          echo "::set-output name=currentstep::$currentstep"        
+      
+      - name: Update Step
+        if: ${{ steps.validacao.outputs.currentstep == '0' }}      
+        run: |
+          git checkout admin
+          echo "1" > .github/CONFIG/step.txt
+          git config --global user.name 'Julio Arruda'
+          git config --global user.email 'julio.arruda@outlook.com'
+          git add .
+          git commit -m "Atualizando Step"
+          git push
+
+      - name: Create an issue
+        if: ${{ steps.validacao.outputs.currentstep == '0' }}      
+        uses: actions-ecosystem/action-create-issue@v1
+        with:
+          github_token: ${{ secrets.ISSUE_SECRET }}
+          title: Boas Vindas ao Primeiro Desafio!!!
+          body: |
+            ## Boas vindas a primeira parte do desafio
+
+            Neste desafio, nós vamos falar um pouco sobre GitFlow, e como podemos trabalhar com esse workflow.
+
+            > **_NOTA:_** [Você pode ver a explicação em vídeo](https://www.youtube.com/watch?v=_HkR423Dcz4)
+
+            > **_NOTA:_** Esse processo não é exclusivo do GitHub. Você pode usar o GitFlow em qualquer serviço que utilize Git.
+
+            Quando começamos a trabalhar com controle de versão para código fonte, nós temos que nos preocupar com algumas coisas,
+            como por exemplo, trabalho em paralelo, estabilidade do código fonte produtivo, rastreabilidade de alterações, entre outras coisas.
+
+            Trabalhar com Git pode facilitar esse processo, já que nós podemos criar _ramificações_ (ou branches) do nosso código fonte, e trabalhar
+            de maneira apartada, sem afetar o código principal.
+
+            Quando criamos um novo repositório no Git, a primeira branch criada é a **main**, e por convenção, é nessa branch que mantemos a versão
+            do nosso código que reflete o ambiente de produção, ou seja, é a versão mais estável do nosso código, então, se tivermos um problema em produção,
+            onde precisemos recriar todo ambiente, podemos pegar essa versão e implantar sem maiores problemas.
+
+            Já que a branch main possui essa versão mais _segura_ do nosso código, nós não podemos trabalhar fazendo alterações diretamente nela, não é mesmo?
+            E é ai que entra o conteito de branch. No desafio numero 1, você viu como criar uma branch, então sem surpresas aqui, mas explicando rapidamente,
+            uma branch é basicamente **uma cópia** do seu código, onde você pode trabalhar tranquilamente sem afetar o conteúdo da branch main.
+
+            E ai, apenas depois de terminar sua alteração, você precisa fazer o merge disso para a branch principal.
+
+            O processo em tese é bem simples, mas imagine agora um cenário de uma grande empresa, com diversas pessoas desenvolvedoras? As coisas começam a ficar
+            um pouco mais complicadas, não é mesmo?
+
+            Com isso em mente, surgiu o GitFlow, que nada mais é que um padrão de branch que podemos usar em nossos projetos, e que deixa nosso dia a dia um pouco mais fácil.
+
+            No começo, quando olhamos pela primeira vez, pode parecer complicada a quantidade de branches que usamos, mas depois que você entende o processo, fica bem mais simples.
+
+            > **_NOTA:_** Aqui vai um adendo importante! O GitFlow não é uma bala de prata que vai resolver qualquer cenário, é possivel que para o seu projeto/time seja necessário
+            algum ajuste.
+
+            Vamos dar uma olhadinha no GitFlow? Mas já vou avisando, não vai se assustar.. hehe
+
+            ![GitFlow](https://user-images.githubusercontent.com/5204009/187737958-846b768a-3f67-4a4f-9ac0-50647ae07b0b.png)
+
+            Essa imagem ai é o fluxo geral do GitFlow. Quando trabalhamos assim, as branches mais comuns são:
+
+            - main
+            - develop
+            - feature
+            - release
+            - hotfix
+
+            Acho que pra não ficar tão extensa a explicação, vamos falar sobre cada branch em seu devido tempo, oque acha?
+
+            Para nós começarmos aqui, eu vou te pedir pra fazer o seguinte, **proteger a branch main.**
+            O Intuito de proteger a branch main, é evitar alterações direto nela, evitando que alguma pessoa desenvolvedora tente burlar a regra, e fazer um commit direto na main.
+
+            Fazer essa proteção é bem simples, primeiro, você precisa acessar as configurações do repositório, como na imagem abaixo:
+            ![seta-settings](https://user-images.githubusercontent.com/5204009/187739972-6589dfe1-1cc4-4c49-811b-87faf848c9bf.png)
+
+            Agora, acesse a opção **branches**:
+            ![image](https://user-images.githubusercontent.com/5204009/187740142-f7233c6b-ae25-41b5-b827-937b28c6591e.png)
+
+            Aqui, nós temos uma opção chamada **Branch protection rules**, e clique em **add rule**
+            ![image](https://user-images.githubusercontent.com/5204009/187740390-b1326ea0-0d00-464d-81c9-712f513cfa14.png)
+
+            Agora nós podemos criar nossa regra.
+
+            Na caixa de texto, escreva **main**, já que é essa branch que queremos proteger
+            ![image](https://user-images.githubusercontent.com/5204009/187740731-9feae0e1-4d33-4d3e-af49-137e957d96f6.png)
+
+            Nos campos abaixo, são as regras de proteção da nossa branch
+            ![image](https://user-images.githubusercontent.com/5204009/187740815-e5225e12-e53e-4132-9fab-faba2519c75d.png)
+
+            Marque a opção: **Require a pull request before merging**, e desmarque a opção **Require approvals** que irá surgir. 
+            A opção **Require approvals** é importante para garantir que alguém irá aprovar seu pull request, mas como nesse repositório apenas você está trabalhando, não faz sentido
+            deixar isso habilitado, porque você não conseguiria seguir em frente.
+            ![image](https://user-images.githubusercontent.com/5204009/187743613-a2fb7a34-14bd-4a23-8235-b9d9831dc362.png)
+
+
+            Uma outra opção interessante de habilitar é: **Require conversation resolution before merging**, porque dessa forma, em um cenário de code review, todas as conversas precisam estar concluidas para que você possa 
+            seguir em frente.
+
+            ![image](https://user-images.githubusercontent.com/5204009/187743672-3699bc55-691a-4948-aef5-a5f02191cbfe.png)
+
+            Essa opção também é importante, porque tráz mais segurança aos seus commits, já que exige uma assinatura para os commits realizados nessa branch.
+            > **_NOTA:_** [Assista o vídeo de como configurar a assinatura de commits](https://youtube.com/julioarruda)
+            ![image](https://user-images.githubusercontent.com/5204009/187744115-5bdf1b77-cabd-4142-808f-55ef397cbec8.png)
+
+            E outra essencial é essa aqui, pois assim não permitimos que ninguem de um bypass na proteção, inclusive administradores do repositório, como você por exemplo.
+            ![image](https://user-images.githubusercontent.com/5204009/187744289-3975d940-0cbb-4f45-92bd-da31c5d0d0a8.png)
+
+            Agora que você já criou as regras, clique em **Create**, e vamos para a proxima parte.
+            ![image](https://user-images.githubusercontent.com/5204009/187744717-e6cfc570-c03d-43b8-8430-6e841336e35e.png)
+
+            Bons Estudos, e até daqui a pouco!!
+
+            ![yogitocat](https://octodex.github.com/images/yogitocat.png)
+
+
+
+
+            

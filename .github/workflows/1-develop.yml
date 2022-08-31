@@ -1,0 +1,79 @@
+name: Develop
+
+on:
+  branch_protection_rule:
+    types:
+      - created
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  start:
+    name: Develop
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: validate step
+        id: validacao
+        run: |
+          git checkout admin
+          currentstep=$(cat .github/CONFIG/step.txt)
+          echo "::set-output name=currentstep::$currentstep"        
+      
+      - name: Update Step
+        if: ${{ steps.validacao.outputs.currentstep == '1' }}      
+        run: |
+          git checkout admin
+          echo "1" > .github/CONFIG/step.txt
+          git config --global user.name 'Julio Arruda'
+          git config --global user.email 'julio.arruda@outlook.com'
+          git add .
+          git commit -m "Atualizando Step"
+          git push
+
+      - name: Create an issue
+        if: ${{ steps.validacao.outputs.currentstep == '1' }}      
+        uses: actions-ecosystem/action-create-issue@v1
+        with:
+          github_token: ${{ secrets.ISSUE_SECRET }}
+          title: A Main está protegida
+          body: |
+            ## Show, você conseguiu proteger a branch main!!
+
+            Agora que você já protegeu a branch Main,vamos seguir em frente..
+
+            Você já entendeu que na Main fica o código estável, certo? É na Main que refletimos o ambiente de produção, e nós não realizamos 
+            nenhum desenvolvimento direto nela, então agora, nós precisamos preparar o fluxo de desenvolvimento, certo?
+
+            Quando olhamos para o fluxo do GitFlow, nós podemos ver uma branch chamada **develop** (ou dev, isso pode variar), e é basicamente nessa branch que o processo de desenvolvimento ocorre.
+
+            ![GitFlow](https://user-images.githubusercontent.com/5204009/187737958-846b768a-3f67-4a4f-9ac0-50647ae07b0b.png)
+
+            Essa branch é criada apartir da branch Main, e é mantida em conjunto, ou seja, nós não excluimos a branch develop, inclusive seu funcionamento é bem similar ao da branch main, já que 
+            apesar de ser de desenvolvimento, alterações não costumam ser feitas diretamente nela, inclusive, na grande maioria das vezes ela também é protegida.
+
+            Então, todo o processo de desenvolvimento (exceto hotfix) vai ser originado apartir de uma branch criada apartir de Develop.
+
+            Agora, vamos então criar nossa branch de develop, ok?
+
+            Então primeiramente faça o clone do repositório para sua máquina:
+            ```
+            git clone git@github.com:aprendagithub/seu-repo.git
+            ```
+
+            Agora acesse a pasta do seu repositório e execute os seguintes comandos:
+            ```
+            git checkout -b develop
+            git push --all
+            ```
+
+            
+            Bons Estudos, e até daqui a pouco!!
+
+            ![yogitocat](https://octodex.github.com/images/yogitocat.png)
