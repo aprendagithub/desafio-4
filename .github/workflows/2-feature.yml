@@ -1,0 +1,107 @@
+name: Feature
+
+on:
+  workflow_dispatch:
+  create:
+
+permissions:
+  contents: write
+
+jobs:
+  branch:
+    name: Feature
+    runs-on: ubuntu-latest
+    if: ${{ github.ref_type == 'branch' && github.ref_name == 'develop' }}
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: validate step
+        id: validacao
+        run: |
+          git fetch
+          git checkout admin
+          currentstep=$(cat .github/CONFIG/step.txt)
+          echo "::set-output name=currentstep::$currentstep"   
+
+      - name: Create an issue
+        if: ${{ steps.validacao.outputs.currentstep == '2' }} 
+        uses: actions-ecosystem/action-create-issue@v1
+        with:
+          github_token: ${{ secrets.ISSUE_SECRET }}
+          title: Nós temos uma branch Develop!!
+          body: |
+            ## Mais um passo a caminho do GitFlow
+
+            Agora você tem em seu repositório, as duas branches principais, a main, e a develop, então, recaptulando:
+
+            - main: Branch principal, protegida e reflete produção
+
+            - develop: Branch criada a partir da Main, protegida, e reflete o ambiente de Desenvolvimento. Apesar de refletir desenvolvimento, essa branch não deve receber alterações diretamente.
+
+            Agora, vamos para um cenário onde você precisa começar a desenvolver uma nova funcionalidade para a aplicação, oque você precisa fazer? Criar uma nova branch, correto?
+
+            Mas existe alguma convenção para a nomenclatura? A resposta é sim!
+
+            Para as branches de Feature, normalmente nós criamos seguindo o seguinte padrão:
+            ```
+            feature/nome-feature
+            ```
+
+            Seguindo esse padrão, fica muito mais claro identificar do que se trata a branch quando você olha a lista de todas as branches que foram criadas, e sim, podem existir diversas branches de feature 
+            rodando em paralelo, com várias pessoas desenvolvedoras diferentes atuando em cada uma delas.
+
+            Agora, que tal você criar sua própria Branch de Feature?
+
+            Isso ai, na sua máquina agora, execute o seguinte comando
+
+            ```
+            git checkout develop
+            ```
+            O comando anterior é para garantir que você já está na branch develop.
+
+            E agora: 
+            ```
+            git checkout -b feature/nova-feature
+            ```
+
+            Então agora, nós já temos uma nova branch de feature, e a minha sugestão para você, é que já realize um novo commit, então, você pode por exemplo, adicionar um novo arquivo nessa branch, ou alterar o readme.md, deixo essa parte
+            a sua escolha.. 
+
+            Depois que fizer seu commit, basta sincronizar sua branch com o GitHub, e você pode fazer isso de duas maneiras:
+
+            A primeira:
+            ```
+            git push --all
+            ```
+
+            Esse comando, vai mandar para o servidor **TODAS** as alterações de todas as Branches para o servidor, então, se você estiver trabalhando em mais de uma branch, e quer enviar apenas uma, esse comando não é o ideal.
+
+            Já a segunda maneira, nesse caso considerando que é uma branch nova, você pode executar o seguinte comando:
+            ```
+            git push --set-upstream origin teste
+            ```
+
+            Se a branch já tiver sido sincronizada previamente, é só rodar um ```git push``` que vai funcionar também.
+
+
+            Bons Estudos, e até daqui a pouco!!
+
+            ![yogitocat](https://octodex.github.com/images/minertocat.png)
+
+
+      - name: Update Step
+        if: ${{ steps.validacao.outputs.currentstep == '2' }}      
+        run: |
+          git fetch
+          git checkout admin
+          echo "3" > .github/CONFIG/step.txt
+          git config --global user.name 'Julio Arruda'
+          git config --global user.email 'julio.arruda@outlook.com'          
+          git add .
+          git commit -m "Atualizando Step"
+          git push
+
+
+

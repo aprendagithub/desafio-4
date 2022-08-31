@@ -1,0 +1,92 @@
+name: PR Develop
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/*  
+
+permissions:
+  contents: write
+
+jobs:
+  start:
+    name: PR Develop
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: validate step
+        id: validacao
+        run: |
+          git checkout admin
+          currentstep=$(cat .github/CONFIG/step.txt)
+          echo "::set-output name=currentstep::$currentstep"        
+      
+      - name: Create an issue
+        if: ${{ steps.validacao.outputs.currentstep == '3' }}      
+        uses: actions-ecosystem/action-create-issue@v1
+        with:
+          github_token: ${{ secrets.ISSUE_SECRET }}
+          title: Já começamos a desenvolver nossa Feature então?
+          body: |
+            ## Agora nós temos 3 branches rodando
+
+            Na ultima parte nós criamos então uma branch de Feature, e também, realizamos uma alteração, simulando o desenvolvimento de uma nova funcionalidade, certo?
+            
+            Nós terminamos o desenvolvimento, e queremos levar nosso código para produção, certo? Então, qual é o Fluxo que devemos seguir? Vamos dar uma olhada no desenho outra vez?
+
+            ![GitFlow](https://user-images.githubusercontent.com/5204009/187737958-846b768a-3f67-4a4f-9ac0-50647ae07b0b.png)
+
+            Seguindo o desenho, nós precisamos retornar essa alteração para a branch de Develop, para que no futuro, possamos levar até produção.
+
+            Então, o proximo passo aqui será oque? Será criar um Pull Request da nossa alteração para a branch Develop, certo?
+
+            Vamos fazer isso?
+
+            Dessa vez, eu sugiro que você siga pela interface visual do GitHub, vai ser muito mais prático, olha só o porque:
+            ![image](https://user-images.githubusercontent.com/5204009/187775918-5dbd42d0-5d87-4bb7-9bd3-9ec47c5061f5.png)
+
+            Como você acabou de subir uma alteração, o GitHub identifica isso, e já sugere que você faça um Pull Request, então, vamos clicar em **Compare & Pull Request**
+
+            Nessa tela, você precisa garantir que a Base Branch é a **Develop**, como na imagem, e a compare deve ser a branch que você criou
+            ![image](https://user-images.githubusercontent.com/5204009/187776167-6af48459-41d6-4cb6-b8df-0a2bf420cd3d.png)
+
+            Você também pode colocar um titulo, e uma descrição para ajudar na aprovação do Pull Request.
+
+            Agora você pode clicar em **Create Pull Request**
+
+            Agora seu Pull Request foi criado, e está aguardando para o merge ser realizado. Como esse projeto possui algumas automações, é possivel que demore alguns segundos para liberar o botão de **Merge Pull Request**.
+            ![image](https://user-images.githubusercontent.com/5204009/187776905-bc489225-766f-47d9-b561-2d9936557141.png)
+
+            Assim que o botão **Merge Pull Request** estiver liberado, pode clicar nele, e irão aparecer as seguintes opções:
+            ![image](https://user-images.githubusercontent.com/5204009/187777253-4323712e-e1ca-493b-b790-ace521c448a6.png)
+
+            O Primeiro campo é a mensagem de commit, e o segundo será a descrição. Você pode deixar como está, ou alterar algo, mas minha sugestão pessoal é deixar o texto mais ou menos como está para que você possa identificar isso no log caso necessário.
+
+            Se estiver tudo certo, é só clicar em confirm merge, e você também pode deletar a branch, já que não vamos mais precisar dela.
+
+            Inclusive, depois que o desenvolvimento for concluido, é boa prática excluir as branches para não ficar acumulando _lixo_ no controle de versão.
+
+
+
+            Bons Estudos, e até daqui a pouco!!
+
+            ![yogitocat](https://octodex.github.com/images/megacat-2.png)
+
+
+      - name: Update Step
+        if: ${{ steps.validacao.outputs.currentstep == '3' }}      
+        run: |
+          git fetch
+          git checkout admin
+          echo "4" > .github/CONFIG/step.txt
+          git config --global user.name 'Julio Arruda'
+          git config --global user.email 'julio.arruda@outlook.com'          
+          git add .
+          git commit -m "Atualizando Step"
+          git push
+
+
