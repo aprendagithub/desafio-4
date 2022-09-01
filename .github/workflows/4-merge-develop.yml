@@ -23,12 +23,10 @@ jobs:
           git checkout admin
           currentstep=$(cat .github/CONFIG/step.txt)
           echo "::set-output name=currentstep::$currentstep"
-          git checkout develop
-          compare=$(git rev-list --right-only --count main...develop)
-          echo "::set-output name=compare::$compare"                   
+               
       
       - name: Create an issue
-        if: ${{ steps.validacao.outputs.currentstep == '4'  && steps.validacao.outputs.compare != '0' }}               
+        if: ${{ steps.validacao.outputs.currentstep == '4' }}               
         uses: actions-ecosystem/action-create-issue@v1
         with:
           github_token: ${{ secrets.ISSUE_SECRET }}
@@ -79,7 +77,7 @@ jobs:
 
 
       - name: Update Step
-        if: ${{ steps.validacao.outputs.currentstep == '4'  && steps.validacao.outputs.compare != '0' }}      
+        if: ${{ steps.validacao.outputs.currentstep == '4' }}      
         run: |
           git fetch
           git checkout admin
