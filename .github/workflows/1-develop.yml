@@ -55,7 +55,7 @@ jobs:
 
             Então primeiramente faça o clone do repositório para sua máquina:
             ```
-            git clone git@github.com:aprendagithub/seu-repo.git
+            git clone git@github.com:github-mao-na-massa/seu-repo.git
             ```
 
             Agora acesse a pasta do seu repositório e execute os seguintes comandos:
