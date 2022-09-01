@@ -63,17 +63,17 @@ jobs:
           echo "::set-output name=email::$email"
           echo "::set-output name=identificado::$identificado"
 
-      - name: Iniciar Processo Badge
-        if: ${{ steps.validacao.outputs.currentstep == '8' }}  
-        uses: dacbd/create-issue-action@v1
-        with:
-          token: ${{ secrets.ISSUE_SECRET }}
-          owner: julioarruda
-          repo: arruda-events-badge
-          title: '[Desafio 1] ${{ steps.issueinfo.outputs.nome }}'
-          body: |
-            participant:${{ steps.issueinfo.outputs.nome }}
-            id:${{ steps.issueinfo.outputs.identificado }}
-            event:desafio_primeiros_passos_github            
-            email:${{ steps.issueinfo.outputs.email }}
+      # - name: Iniciar Processo Badge
+      #   if: ${{ steps.validacao.outputs.currentstep == '8' }}  
+      #   uses: dacbd/create-issue-action@v1
+      #   with:
+      #     token: ${{ secrets.ISSUE_SECRET }}
+      #     owner: julioarruda
+      #     repo: arruda-events-badge
+      #     title: '[Desafio 1] ${{ steps.issueinfo.outputs.nome }}'
+      #     body: |
+      #       participant:${{ steps.issueinfo.outputs.nome }}
+      #       id:${{ steps.issueinfo.outputs.identificado }}
+      #       event:desafio_primeiros_passos_github            
+      #       email:${{ steps.issueinfo.outputs.email }}
           
