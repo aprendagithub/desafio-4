@@ -1,0 +1,86 @@
+name: Hotfix
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+jobs:
+  start:
+    name: Hotfix
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: validate step
+        id: validacao
+        run: |
+          git checkout admin
+          currentstep=$(cat .github/CONFIG/step.txt)
+          echo "::set-output name=currentstep::$currentstep" 
+           
+      
+      - name: Create an issue
+        if: ${{ steps.validacao.outputs.currentstep == '6' }}               
+        uses: actions-ecosystem/action-create-issue@v1
+        with:
+          github_token: ${{ secrets.ISSUE_SECRET }}
+          title: E se tiver um bug em produção?
+          body: |
+            ## E se tiver um bug em produção?
+
+            Nós falamos até agora sobre um fluxo que acontece no mundo perfeito, mas e quando o código já está implantado em produção, encontramos um bug, e precisamos
+            corrigir de forma emergencial? Passar por todo o fluxo que vimos até agora pode ser um tanto quanto demorado, não acha?
+
+            Para isso serve o Hotfix!
+
+            Um Hotfix quebra todo o fluxo de trabalho que aprendemos até aqui, e vai ser implantado diretamente em produção, sem precisar passar por todos os ambientes não produtivos,
+            e pensando nisso, a branch que criamos para trabalhar, é criada diretamente da branch main, afinal de contas, a branch main reflete o código que está implantado agora em produção, certo?
+            Ao menos, é oque deveria ser, e espero que ai na sua empresa seja exatamente assim também.. hehe
+
+            ![GitFlow](https://user-images.githubusercontent.com/5204009/187737958-846b768a-3f67-4a4f-9ac0-50647ae07b0b.png)
+
+            Vamos criar um Hotfix? Bora lá..
+
+            Vamos para sua máquina, lá você vai precisar executar o seguinte comando:
+            ```
+            git checkout main
+            git pull
+            ```
+
+            Dessa forma, garantimos que estamos na branch main, e também que atualizamos o conteúdo da nossa branch local, com a versão do servidor.
+
+            Agora vamos criar uma nova branch:
+            ```
+            git checkout -b hotfix/novo-bug
+            ```
+
+            Dentro dessa branch, vou pedir que você faça alguma alteração, ou inclua um novo arquivo.
+            Feito isso, faça seu commit, e mande para o servidor.
+            Aproveite e já crie uma tag para esse hotfix, e também envie para o servidor.
+
+            ```
+            git tag -a v1.1 -m "versão 1.1 - corrigindo bug xpto"
+            git push --tags
+            ```
+            
+            Bons Estudos, e até daqui a pouco!!
+
+            ![baracktocat](https://octodex.github.com/images/nyantocat.gif)
+
+
+      - name: Update Step
+        if: ${{ steps.validacao.outputs.currentstep == '6' }}        
+        run: |
+          git fetch
+          git checkout admin
+          echo "7" > .github/CONFIG/step.txt
+          git config --global user.name 'Julio Arruda'
+          git config --global user.email 'julio.arruda@outlook.com'          
+          git add .
+          git commit -m "Atualizando Step"
+          git push            
