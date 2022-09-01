@@ -22,7 +22,8 @@ jobs:
           git fetch        
           git checkout admin
           currentstep=$(cat .github/CONFIG/step.txt)
-          echo "::set-output name=currentstep::$currentstep" 
+          echo "::set-output name=currentstep::$currentstep"
+          git checkout develop
           compare=$(git rev-list --right-only --count main...develop)
           echo "::set-output name=compare::$compare"                   
       
