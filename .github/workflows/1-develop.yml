@@ -22,20 +22,11 @@ jobs:
       - name: validate step
         id: validacao
         run: |
+          git fetch        
           git checkout admin
           currentstep=$(cat .github/CONFIG/step.txt)
           echo "::set-output name=currentstep::$currentstep"        
       
-      - name: Update Step
-        if: ${{ steps.validacao.outputs.currentstep == '1' }}      
-        run: |
-          git checkout admin
-          echo "1" > .github/CONFIG/step.txt
-          git config --global user.name 'Julio Arruda'
-          git config --global user.email 'julio.arruda@outlook.com'
-          git add .
-          git commit -m "Atualizando Step"
-          git push
 
       - name: Create an issue
         if: ${{ steps.validacao.outputs.currentstep == '1' }}      

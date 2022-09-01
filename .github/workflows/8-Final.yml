@@ -21,6 +21,7 @@ jobs:
       - name: validate step
         id: validacao
         run: |
+          git fetch
           git checkout admin
           currentstep=$(cat .github/CONFIG/step.txt)
           echo "::set-output name=currentstep::$currentstep"        
