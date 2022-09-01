@@ -15,7 +15,6 @@ Boas vindas ao desafio de GitHub. Este é o quarto de uma série de desafios ond
 - Criar branch de release
 - Criar branch de Hotfix
 - Proteger a branch main
-- Proteger a branch develop
 - Promover código até a branch main
 
 
