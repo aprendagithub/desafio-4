@@ -1,0 +1,79 @@
+name: Final
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main 
+
+permissions:
+  contents: write
+
+jobs:
+  start:
+    name: Final
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: validate step
+        id: validacao
+        run: |
+          git checkout admin
+          currentstep=$(cat .github/CONFIG/step.txt)
+          echo "::set-output name=currentstep::$currentstep"        
+      
+      - name: Create an issue
+        if: ${{ steps.validacao.outputs.currentstep == '8' }}      
+        uses: actions-ecosystem/action-create-issue@v1
+        with:
+          github_token: ${{ secrets.ISSUE_SECRET }}
+          title: Parabéns!!!
+          body: |
+            ## Chegamos ao fim de mais desafio!!!!
+
+            Parabén, chegamos ao fim desse nosso desafio de GitFlow, e aqui eu deixo uma pergunta, você conseguiu entender oque é o GitFlow?
+
+            Já utilizava ele antes desse desafio? Usa algum modelo diferente? Eu vou deixar aqui para você um convite para participar do
+            nosso grupo no [Telegram](https://t.me/github_br).
+
+            Obrigado por participar, e espero que seja útil para sua carreira.
+
+            Você irá receber em breve, um e-mail com o link para sua badge de conclusão do desafio. A badge ficará disponivel em alguns minutos após você receber por e-mail,
+            pois tem um tempo de processamento.
+
+            Não se esqueça de passar lá no meu canal no Youtube, e se [inscrever](https://youtube.com/julioarruda)
+
+            Até breve!
+
+            ![baracktocat](https://octodex.github.com/images/ironcat.jpg)
+
+      - name: Atualizar Issue Desafio
+        if: ${{ steps.validacao.outputs.currentstep == '8' }} 
+        id: issueinfo 
+        run: |
+          issuenumber="$(cat .github/CONFIG/issue.txt | grep "id" | cut -d":" -f2)"
+          nome="$(cat .github/CONFIG/issue.txt | grep "nome" | cut -d":" -f2)"
+          email="$(cat .github/CONFIG/issue.txt | grep "email" | cut -d":" -f2)"
+          identificado=$(uuidgen)
+          echo "::set-output name=issuenumber::$issuenumber"
+          echo "::set-output name=nome::$nome"
+          echo "::set-output name=email::$email"
+          echo "::set-output name=identificado::$identificado"
+
+      - name: Iniciar Processo Badge
+        if: ${{ steps.validacao.outputs.currentstep == '8' }}  
+        uses: dacbd/create-issue-action@v1
+        with:
+          token: ${{ secrets.ISSUE_SECRET }}
+          owner: julioarruda
+          repo: arruda-events-badge
+          title: '[Desafio 1] ${{ steps.issueinfo.outputs.nome }}'
+          body: |
+            participant:${{ steps.issueinfo.outputs.nome }}
+            id:${{ steps.issueinfo.outputs.identificado }}
+            event:desafio_primeiros_passos_github            
+            email:${{ steps.issueinfo.outputs.email }}
+          

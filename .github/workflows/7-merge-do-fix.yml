@@ -1,0 +1,70 @@
+name: Hotfix Branch
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - hotfix/*  
+
+permissions:
+  contents: write
+
+jobs:
+  start:
+    name: Hotfix Branch
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: validate step
+        id: validacao
+        run: |
+          git checkout admin
+          currentstep=$(cat .github/CONFIG/step.txt)
+          echo "::set-output name=currentstep::$currentstep"        
+      
+      - name: Create an issue
+        if: ${{ steps.validacao.outputs.currentstep == '7' }}      
+        uses: actions-ecosystem/action-create-issue@v1
+        with:
+          github_token: ${{ secrets.ISSUE_SECRET }}
+          title: Vamos implantar esse hotfix?
+          body: |
+            ## Estamos terminando...
+
+            Bom, agora que você criou uma branch de Hotfix e subiu sua alteração, seria o momento do pipeline de deploy iria executar a implantação com a versão dessa branch.
+
+            Como não é o caso, vamos imaginar que isso já aconteceu, então vamos seguir o fluxo igual ao de Release, ou seja, vamos fazer um merge tanto para main, quanto para Develop.
+
+            Então vamos lá, vamos abrir um para a Branch Main
+
+            ![image](https://user-images.githubusercontent.com/5204009/187806756-ef271763-e933-4b3b-b46c-aaff61017ee9.png)
+
+            Agora você pode até realizar o Merge, só não exclua a branch de release..
+            
+            ![image](https://user-images.githubusercontent.com/5204009/187806821-76385ebb-efd3-4c7b-864f-1912a81448e7.png)
+
+            Então vamos lá, vamos abrir um para a Branch Develop
+
+            ![image](https://user-images.githubusercontent.com/5204009/187806756-ef271763-e933-4b3b-b46c-aaff61017ee9.png)
+
+            E agora que os merges foram feitos, você pode excluir a branch de hotfix.
+
+            Bons Estudos, e até daqui a pouco!!
+
+            ![baracktocat](https://octodex.github.com/images/xtocat.jpg)
+
+
+      - name: Update Step
+        if: ${{ steps.validacao.outputs.currentstep == '7' }}        
+        run: |
+          git fetch
+          git checkout admin
+          echo "8" > .github/CONFIG/step.txt
+          git config --global user.name 'Julio Arruda'
+          git config --global user.email 'julio.arruda@outlook.com'          
+          git add .
+          git commit -m "Atualizando Step"
+          git push                        
