@@ -1,0 +1,105 @@
+name: Release Branch
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - release/*  
+
+permissions:
+  contents: write
+
+jobs:
+  start:
+    name: Release Branch
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: validate step
+        id: validacao
+        run: |
+          git checkout admin
+          currentstep=$(cat .github/CONFIG/step.txt)
+          echo "::set-output name=currentstep::$currentstep"        
+      
+      - name: Create an issue
+        if: ${{ steps.validacao.outputs.currentstep == '5' }}      
+        uses: actions-ecosystem/action-create-issue@v1
+        with:
+          github_token: ${{ secrets.ISSUE_SECRET }}
+          title: Fechamos uma versão para Produção?
+          body: |
+            ## Agora nós criamos a Branch de Release, ou seja, uma versão de produção
+
+            Sim, isso mesmo.. Como já falamos a Branch release corresponde a versão que será implantada em produção. Ao contrário das branches Main e Develop,
+            a branch release não é uma branch persistente, mas funciona da mesma forma que a Feature, sendo criada sob demanda.
+
+            Resolvi reforçar isso aqui, porque já vi diversos lugares pessoas desenvolvedoras criando branches de release fixas. Em tese isso não é necessáriamente um problema,
+            só que nesse caso, não seria GitFlow, mas sim um Workflow customizado.
+
+            Como eu disse anteriormente, depois que criamos a branch de release, nós não podemos incluir mais nenhum novo código, exceto no caso de bug, ou se estiver incluindo documentações,
+            se não for assim, a versão que foi fechada na criação da branch, é a versão que será implementada nos ambientes, e os pipelines de implantação devem usar essa versão para implantar em todos os ambientes, seguindo Desenvolvimento, Homologação, chegando
+            até Produção, sem esquecer dos testes em cada ambiente.
+
+            Nesse nosso desafio nós não temos nenhum pipeline de Deploy, então para seguir nosso desafio, vamos supor que agora nossa aplicação já foi implantada em produção, então, quais são os proximos passos agora?
+
+            Agora chegou a hora do merge, mas aqui é um pouco diferente de quando fizemos com a feature.
+            No caso da feature, fizemos apenas um Pull Request para Develop, certo?
+
+            Agora nós precisamos fazer um Pull Request tanto para Main, quanto para Develop.
+
+            Para a Main o motivo é bem obvio, já que implantamos o código em produção, precisamos espelhar isso na branch que reflete produção, ou seja, a Main.
+            Já no caso da Develop, em alguns casos causa certa confusão, porque a Release já partiu de Develop, e falamos que não devemos ter alterações em Release, MAS, alterações podem acontecer. Como vimos antes, pode ocorrer Bugfix, ou inclusão de documentação,
+            e se não fizermos o merge pra Develop, ela vai ficar desatualizada, e vamos ter problemas com isso.
+
+            Ah, mais uma coisa antes que eu me esqueça, precisamos incluir uma Tag para marcar o ponto que fechamos essa versão final.
+
+            Vamos então fazer tudo isso?
+
+            Na sua máquina, dentro da branch de release execute o seguinte comando:
+            ```
+            git tag -a v1.0 -m "versão 1.0"
+            git push --tags
+            ```
+
+            Agora com nosso commit marcado, vamos começar os Pull Requests. Você se lembra como criar um Pull Request, certo?
+
+            Então vamos lá, vamos abrir um para a Branch Main
+
+            ![image](https://user-images.githubusercontent.com/5204009/187806756-ef271763-e933-4b3b-b46c-aaff61017ee9.png)
+
+            Agora você pode até realizar o Merge, só não exclua a branch de release..
+            
+            ![image](https://user-images.githubusercontent.com/5204009/187806821-76385ebb-efd3-4c7b-864f-1912a81448e7.png)
+
+            Agora você pode criar um Pull Request para Develop, mas no nosso caso, nós temos uma surpresinha, como nós não alteramos nada na release, as branches estão iguais, e não precisamos de um merge pra Develop. Nós só precisariamos mesmo
+            realizar esse pull request, caso tivessemos encontrado algum Bug, ou incluido documentos direto na branch.
+            
+            ![image](https://user-images.githubusercontent.com/5204009/187806914-642555ba-6390-4a3c-aba6-b3567ac8d879.png)
+
+            Bom, terminamos a parte de Release, então, vamos para a próxima parte!
+
+
+            Bons Estudos, e até daqui a pouco!!
+
+            ![baracktocat](https://octodex.github.com/images/baracktocat.jpg)
+
+
+      - name: Update Step
+        if: ${{ steps.validacao.outputs.currentstep == '5' }}        
+        run: |
+          git fetch
+          git checkout admin
+          echo "6" > .github/CONFIG/step.txt
+          git config --global user.name 'Julio Arruda'
+          git config --global user.email 'julio.arruda@outlook.com'          
+          git add .
+          git commit -m "Atualizando Step"
+          git push
+
+
+
+
