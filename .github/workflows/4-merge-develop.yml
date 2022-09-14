@@ -12,7 +12,6 @@ jobs:
     name: PR Develop from Feature
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout
         uses: actions/checkout@v2
       
@@ -69,6 +68,11 @@ jobs:
 
             ```
             git checkout -b release/v1.0.0
+            ```
+
+            E não se esqueça de fazer o push..
+            ```
+            git push
             ```
 
             Bons Estudos, e até daqui a pouco!!
